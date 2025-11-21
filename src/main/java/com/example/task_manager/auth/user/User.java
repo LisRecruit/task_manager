@@ -46,7 +46,7 @@ public class User implements Serializable {
     @JoinColumn(name = "direct_manager_id")
     private User directManager;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "directManager")
     private List<User>subordinates = new ArrayList<>();
 
     public void addRole(Role role) {

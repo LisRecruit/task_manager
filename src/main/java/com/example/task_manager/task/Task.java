@@ -17,6 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "tasks")
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "task_seq", sequenceName = "seq_tasks_id", allocationSize = 1)
@@ -45,14 +46,20 @@ public class Task {
     private Integer daysOverdue;
     @ManyToMany (fetch = FetchType.EAGER)
     @JoinTable(
-            name = "requires_tasks_to_complete",
+            name = "sub_tasks",
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "depends_on_task_id")
     )
-    private List<Task> requiresTasksToComplete = new ArrayList<>();
+    private List<Task> subTasks = new ArrayList<>();
     @Column(name = "task_complete", nullable = false)
     private Boolean taskComplete;
     @Column(name = "task_type")
     @Enumerated(EnumType.STRING)
     private TaskType taskType;
+
+    @Column(name = "repeatable", nullable = false)
+    private Boolean repeatable;
+    @Column (name = "repeatable_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RepeatableType repeatableType;
 }

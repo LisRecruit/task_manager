@@ -4,5 +4,7 @@ public record CreateTaskRequest(String taskDescription,
                                 Long responsiblePersonId,
 //                                User taskSetBy, //get from token
                                 String dueDate,
-                                String taskType) {
+                                String taskType,
+                                String repeatableType,
+                                Boolean repeatable) {
 }

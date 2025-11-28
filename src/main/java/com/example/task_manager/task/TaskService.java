@@ -32,6 +32,7 @@ public class TaskService {
         Task task = createSingleTask(request, userCreatorId);
         return taskMapper.toResponse(taskRepository.save(task));
     }
+
     // get requesterId from token
     @Transactional
     public TaskResponse updateTask (UpdateTaskRequest request, Long requesterId) {
@@ -73,7 +74,7 @@ public class TaskService {
             task.setCompletionDate(LocalDate.now());
             task.setDaysOverdue((int) ChronoUnit.DAYS.between(task.getDueDate(), LocalDate.now()));
             Task newTask = null;
-            if (task.getRepeatable()){
+            if (Boolean.TRUE.equals(task.getRepeatable())){
                 LocalDate nextDueDate = determineNextDueDate(task.getRepeatableType(), task.getDueDate());
                 newTask = taskRepository.save(repeatTask(task, nextDueDate));
             }

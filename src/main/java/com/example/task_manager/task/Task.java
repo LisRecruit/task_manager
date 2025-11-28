@@ -44,7 +44,7 @@ public class Task {
     private LocalDate completionDate;
     @Column (name = "days_overdue")
     private Integer daysOverdue;
-    @ManyToMany (fetch = FetchType.EAGER)
+    @ManyToMany (fetch = FetchType.LAZY)
     @JoinTable(
             name = "sub_tasks",
             joinColumns = @JoinColumn(name = "task_id"),
@@ -62,4 +62,5 @@ public class Task {
     @Column (name = "repeatable_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private RepeatableType repeatableType;
+
 }

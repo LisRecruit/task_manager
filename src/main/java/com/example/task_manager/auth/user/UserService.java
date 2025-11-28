@@ -37,6 +37,9 @@ public class UserService {
         if (userRepository.existsByUserName(request.username())){
             throw new IllegalArgumentException("User with this userName already exists.");
         }
+        if (!request.password().equals(request.repeatPassword())){
+            throw new IllegalArgumentException("Passwords do not match");
+        }
         User user = User.builder()
                 .userName(request.username())
                 .password(passwordEncoder.encode(request.password()))

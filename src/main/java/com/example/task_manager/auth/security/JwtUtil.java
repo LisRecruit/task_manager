@@ -72,9 +72,9 @@ public class JwtUtil {
 
     Boolean isTokenExpired(String token) {
         try {
-            Date expiration = extractExpiration(token);
+            Date expiredAt = extractExpiration(token);
             long currentTime = System.currentTimeMillis();
-            long expirationTime = expiration.getTime();
+            long expirationTime = expiredAt.getTime();
             long allowedClockSkewMillis = 1;
             return expirationTime < (currentTime - allowedClockSkewMillis);
         } catch (io.jsonwebtoken.ExpiredJwtException e) {
@@ -101,7 +101,6 @@ public class JwtUtil {
                    .build()
                    .parseClaimsJws(token)
                    .getPayload();
-
     }
     public List<String> extractRoles(String token) {
         return extractClaim(token, claims -> claims.get("roles", List.class));

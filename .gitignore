@@ -36,4 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 
-/src/main/java/com/example/task_manager/auth/security/PasswordEncoderMain.java
+src/main/java/com/example/task_manager/auth/security/PasswordEncoderMain.java

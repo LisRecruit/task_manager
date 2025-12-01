@@ -62,6 +62,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .headers(headers -> headers
+//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
                         .httpStrictTransportSecurity(HeadersConfigurer.HstsConfig::disable)
                 );
 

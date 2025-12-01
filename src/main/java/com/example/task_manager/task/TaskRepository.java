@@ -9,4 +9,5 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository <Task, Long>{
     List<Task> findAllByResponsiblePersonId(Long responsiblePersonId);
     List<Task> findAllByResponsiblePersonIdIn(List<Long> userIds);
+
 }

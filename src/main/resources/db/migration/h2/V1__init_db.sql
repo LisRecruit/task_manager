@@ -27,7 +27,7 @@ INSERT INTO roles (name) VALUES
     ('ROLE_NOTAPPROVED');
 
 INSERT INTO users (name, password, enabled) VALUES
-    ('admin', '$2a$10$NmEOjqhNBr3Vsc/xLia//uCY1Xdl1V3u8E2DtumpiUpOdZEXDB5Lu', TRUE),
+    ('admin', '$2a$10$l0iu8HH44FTisFOW.MQXKukVc2gf81VgdYtwF5qgiMRO1CtOXcVRG', TRUE),
     ('test_user_1', '$2a$10$2y4GI0seRgCcZcWahFCG1OTegfCyXpmZB12N84/E8vRSpY6QoahMm', TRUE),
     ('test_user_2', '$2a$10$tAKtbNNP5qdmrkjg.I3/5u9cJmd0LHn6tZmAlOwaJHTTwR4fbzWbu', TRUE),
     ('test_user_3', '$2a$10$InpcmIIHi1L/SqPz5zTmFenu7j6ewHpRgvho5DGWLfhwAJNPHwuRe', TRUE),

@@ -63,7 +63,7 @@ public class TaskController {
     @GetMapping("/all")
     public ResponseEntity<List<TaskResponse>> getMyTasks (@RequestHeader("Authorization") String token) {
         String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
-        Long userId = jwtUtil.extractClaim(jwt, claims -> claims.get("userId", Long.class));
+        Long userId = jwtUtil.extractClaim(jwt, claims -> claims.get("user_id", Long.class));
         List<TaskResponse> response = taskService.getMyTasks(userId);
         return ResponseEntity.ok(response);
     }

@@ -74,6 +74,7 @@ CREATE TABLE tasks (
     task_set_by_user_id BIGINT NOT NULL,
     due_date DATE NOT NULL,
     completion_date DATE,
+    period DATE NOT NULL,
     days_overdue INTEGER,
     task_complete BOOLEAN NOT NULL DEFAULT(FALSE),
     task_type task_type NOT NULL,
@@ -97,27 +98,27 @@ CREATE TABLE sub_tasks (
 
 INSERT INTO tasks (task_description, responsible_person_note, direct_manager_note,
                    responsible_user_id, task_set_by_user_id,
-                   due_date, task_complete, task_type, repeatable, repeatable_type, parent_task_id)
+                   due_date, period, task_complete, task_type, repeatable, repeatable_type, parent_task_id)
 VALUES
-('Reconcile bank accounts for January', NULL, NULL, 2, 1, '2025-02-20', FALSE, 'RECONCILE_BANK', FALSE, NULL, NULL),
+('Reconcile bank accounts for January', NULL, NULL, 2, 1, '2025-02-20', '2025-02-01', FALSE, 'RECONCILE_BANK', FALSE, NULL, NULL),
 
-('Match payments with invoices', NULL, NULL, 2, 1, '2025-02-22', FALSE, 'MATCH_BANK', TRUE, 'WEEKLY', NULL),
+('Match payments with invoices', NULL, NULL, 2, 1, '2025-02-22', '2025-02-01', FALSE, 'MATCH_BANK', TRUE, 'WEEKLY', NULL),
 
-('Post vendor bill for electricity', NULL, NULL, 3, 2, '2025-02-18', FALSE, 'POST_BILL', FALSE, NULL, NULL),
+('Post vendor bill for electricity', NULL, NULL, 3, 2, '2025-02-18', '2025-02-01', FALSE, 'POST_BILL', FALSE, NULL, NULL),
 
-('Post journal entry for payroll accrual', NULL, NULL, 3, 2, '2025-02-25', FALSE, 'POST_JOURNAL', FALSE, NULL, NULL),
+('Post journal entry for payroll accrual', NULL, NULL, 3, 2, '2025-02-25', '2025-02-01', FALSE, 'POST_JOURNAL', FALSE, NULL, NULL),
 
-('Post payment to vendor: Telco Corp', NULL, NULL, 4, 2, '2025-02-19', FALSE, 'POST_PAYMENT', FALSE, NULL, NULL),
+('Post payment to vendor: Telco Corp', NULL, NULL, 4, 2, '2025-02-19', '2025-02-01', FALSE, 'POST_PAYMENT', FALSE, NULL, NULL),
 
-('Match bank transactions for last week', NULL, NULL, 4, 2, '2025-02-21', FALSE, 'MATCH_BANK', TRUE, 'WEEKLY', NULL),
+('Match bank transactions for last week', NULL, NULL, 4, 2, '2025-02-21', '2025-01-01', FALSE, 'MATCH_BANK', TRUE, 'WEEKLY', NULL),
 
-('Prepare monthly revenue report', NULL, NULL, 5, 3, '2025-02-28', FALSE, 'ONE_TIME', FALSE, NULL, NULL),
+('Prepare monthly revenue report', NULL, NULL, 5, 3, '2025-02-28', '2025-01-01', FALSE, 'ONE_TIME', FALSE, NULL, NULL),
 
-('Reconcile credit card transactions', NULL, NULL, 5, 3, '2025-02-23', FALSE, 'RECONCILE_BANK', FALSE, NULL, NULL),
+('Reconcile credit card transactions', NULL, NULL, 5, 3, '2025-02-23', '2025-01-01', FALSE, 'RECONCILE_BANK', FALSE, NULL, NULL),
 
-('Post bill: insurance premium', NULL, NULL, 6, 4, '2025-02-15', FALSE, 'POST_BILL', FALSE, NULL, NULL),
+('Post bill: insurance premium', NULL, NULL, 6, 4, '2025-02-15', '2025-01-01', FALSE, 'POST_BILL', FALSE, NULL, NULL),
 
-('Prepare payment for insurance premium', NULL, NULL, 6, 4, '2025-02-17', FALSE, 'POST_PAYMENT', FALSE, NULL, NULL);
+('Prepare payment for insurance premium', NULL, NULL, 6, 4, '2025-02-17', '2025-01-01', FALSE, 'POST_PAYMENT', FALSE, NULL, NULL);
 
 INSERT INTO sub_tasks (task_id, depends_on_task_id) VALUES
   (6, 3),

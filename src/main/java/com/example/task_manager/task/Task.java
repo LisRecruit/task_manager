@@ -63,4 +63,10 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private RepeatableType repeatableType;
 
+    @Column(name = "period", nullable = false)
+    private LocalDate period;
+
+
+
+
 }

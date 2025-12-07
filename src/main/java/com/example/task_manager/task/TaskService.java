@@ -2,12 +2,10 @@ package com.example.task_manager.task;
 
 import com.example.task_manager.auth.user.User;
 import com.example.task_manager.auth.user.UserService;
-import com.example.task_manager.task.dto.CompleteTaskResponse;
-import com.example.task_manager.task.dto.CreateTaskRequest;
-import com.example.task_manager.task.dto.TaskResponse;
-import com.example.task_manager.task.dto.UpdateTaskRequest;
+import com.example.task_manager.task.dto.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,19 +37,23 @@ public class TaskService {
         User requester = userService.getUserById(requesterId);
         Task task = taskRepository.findById(request.taskId())
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
-        Integer daysOverdue = (int) ChronoUnit.DAYS.between(task.getDueDate(), LocalDate.now());
+        Integer daysOverdue=-1;
+        if (Boolean.FALSE.equals(task.getTaskComplete())){
+            daysOverdue = (int) ChronoUnit.DAYS.between(task.getDueDate(), LocalDate.now());
+            task.setDaysOverdue(daysOverdue);
+        }
         if (requester.getId().equals(task.getResponsiblePerson().getId())){
             task.setResponsiblePersonNote(request.responsiblePersonNote());
             task.setTaskComplete(request.taskComplete());
-            task.setDaysOverdue(daysOverdue);
-        } else if (requester.getId().equals(task.getTaskSetBy().getId())) {
+
+        } else if (requester.getId().equals(task.getTaskSetBy().getId()) ||
+                requester.getId().equals(task.getResponsiblePerson().getDirectManager().getId())) {
             task.setTaskDescription(request.taskDescription());
             task.setDirectManagerNote(request.directManagerNote());
             User responsiblePerson = userService.getUserById(request.responsiblePersonId());
             task.setResponsiblePerson(responsiblePerson);
             task.setDueDate(LocalDate.parse(request.dueDate()));
             task.setTaskType(TaskType.valueOf(request.taskType().toUpperCase()));
-            task.setDaysOverdue(daysOverdue);
         } else {
             throw new AccessDeniedException("You are not eligible to do this changes");
         }
@@ -75,8 +77,10 @@ public class TaskService {
             task.setDaysOverdue((int) ChronoUnit.DAYS.between(task.getDueDate(), LocalDate.now()));
             Task newTask = null;
             if (Boolean.TRUE.equals(task.getRepeatable())){
-                LocalDate nextDueDate = determineNextDueDate(task.getRepeatableType(), task.getDueDate());
-                newTask = taskRepository.save(repeatTask(task, nextDueDate));
+                RepeatableType repeatableType = task.getRepeatableType();
+                LocalDate nextDueDate = determineNextDueDate(repeatableType, task.getDueDate());
+                LocalDate period = determineNextPeriod(repeatableType, task.getPeriod(), nextDueDate);
+                newTask = taskRepository.save(repeatTask(task, nextDueDate, period));
             }
             Task savedTask = taskRepository.save(task);
             return new CompleteTaskResponse(
@@ -100,17 +104,43 @@ public class TaskService {
 
     //get id from token
     @Transactional(readOnly = true)
-    public List<TaskResponse> getMyTasks (Long responsiblePersonId) {
-        List<Task> tasks = taskRepository.findAllByResponsiblePersonId(responsiblePersonId);
+    public List<TaskResponse> getMyTasks (Long responsiblePersonId, TaskFilter filter) {
+        Specification<Task> spec = (root, query, cb) ->
+                cb.equal(root.get("responsiblePerson").get("id"), responsiblePersonId);
+
+        if (filter.taskComplete() != null) {
+            spec = spec.and(TaskSpecifications.taskComplete(filter.taskComplete()));
+        }
+        if (filter.taskType() != null) {
+            spec = spec.and(TaskSpecifications.taskType(filter.taskType()));
+        }
+        if (filter.dueDateFrom() != null || filter.dueDateTo() != null) {
+            spec = spec.and(TaskSpecifications.dueDateBetween(filter.dueDateFrom(), filter.dueDateTo()));
+        }
+
+        List<Task> tasks = taskRepository.findAll(spec);
         return tasks.stream()
                 .map(taskMapper::toResponse)
                 .toList();
     }
     @Transactional(readOnly = true)
-    public List<TaskResponse> getTasksForUserAndSubordinates(Long userId) {
+    public List<TaskResponse> getTasksForUserAndSubordinates(Long userId, TaskFilter filter) {
         User user = userService.getUserById(userId);
         List<Long> allIds = getAllSubordinateIdsIncludingSelf(user);
-        List<Task> tasks = taskRepository.findAllByResponsiblePersonIdIn(allIds);
+        Specification<Task> spec = (root, query, cb) ->
+                root.get("responsiblePerson").get("id").in(allIds);
+
+        if (filter.taskComplete() != null) {
+            spec = spec.and(TaskSpecifications.taskComplete(filter.taskComplete()));
+        }
+        if (filter.taskType() != null) {
+            spec = spec.and(TaskSpecifications.taskType(filter.taskType()));
+        }
+        if (filter.dueDateFrom() != null || filter.dueDateTo() != null) {
+            spec = spec.and(TaskSpecifications.dueDateBetween(filter.dueDateFrom(), filter.dueDateTo()));
+        }
+
+        List<Task> tasks = taskRepository.findAll(spec);
         return tasks.stream()
                 .map(taskMapper::toResponse)
                 .toList();
@@ -144,6 +174,7 @@ public class TaskService {
                 .responsiblePerson(responsiblePerson)
                 .taskSetBy(taskSetBy)
                 .dueDate(dueDate)
+                .period(LocalDate.parse(request.period()).withDayOfMonth(1))
                 .daysOverdue(daysOverdue)
                 .taskComplete(false)
                 .taskType(TaskType.valueOf(request.taskType().toUpperCase()))
@@ -152,12 +183,13 @@ public class TaskService {
                 .build();
     }
 
-    private Task repeatTask(Task task, LocalDate dueDate) {
+    private Task repeatTask(Task task, LocalDate dueDate, LocalDate period) {
         return Task.builder()
                 .taskDescription(task.getTaskDescription())
                 .responsiblePerson(task.getResponsiblePerson())
                 .taskSetBy(task.getTaskSetBy())
                 .dueDate(dueDate)
+                .period(period.withDayOfMonth(1))
                 .taskComplete(false)
                 .taskType(task.getTaskType())
                 .repeatable(task.getRepeatable())
@@ -173,6 +205,13 @@ public class TaskService {
             case MONTHLY -> currentDueDate.plusMonths(1);
         };
     }
+    private LocalDate determineNextPeriod (RepeatableType type, LocalDate currentPeriod, LocalDate nextDueDate) {
+        return switch (type) {
+            case MONTHLY -> currentPeriod.plusMonths(1);
+            default -> nextDueDate.withDayOfMonth(1);
+        };
+    }
+
     private int determineRepeatCount(RepeatableType type) {
         return switch (type) {
             case DAILY -> 30;
@@ -182,6 +221,8 @@ public class TaskService {
 
         };
     }
+
+
 
 
 

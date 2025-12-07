@@ -1,18 +1,15 @@
 package com.example.task_manager.task;
 
 import com.example.task_manager.auth.security.JwtUtil;
-import com.example.task_manager.auth.user.User;
 import com.example.task_manager.auth.user.UserService;
-import com.example.task_manager.task.dto.CompleteTaskResponse;
-import com.example.task_manager.task.dto.CreateTaskRequest;
-import com.example.task_manager.task.dto.TaskResponse;
-import com.example.task_manager.task.dto.UpdateTaskRequest;
+import com.example.task_manager.task.dto.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Role;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -61,22 +58,41 @@ public class TaskController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<TaskResponse>> getMyTasks (@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<TaskResponse>> getMyTasks (
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) Boolean taskComplete,
+            @RequestParam(required = false) String taskType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateTo
+    ) {
         String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
         Long userId = jwtUtil.extractClaim(jwt, claims -> claims.get("user_id", Long.class));
-        List<TaskResponse> response = taskService.getMyTasks(userId);
+        if (taskComplete == null) {
+            taskComplete = false;
+        }
+        TaskFilter filter = new TaskFilter(taskComplete, dueDateFrom, dueDateTo, taskType);
+        List<TaskResponse> response = taskService.getMyTasks(userId, filter);
         return ResponseEntity.ok(response);
     }
     @GetMapping("/all-subs")
-    public ResponseEntity<List<TaskResponse>> getSubordinatesTasks(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<TaskResponse>> getSubordinatesTasks(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) Boolean taskComplete,
+            @RequestParam(required = false) String taskType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateTo) {
         Long userId = getUserIdFromToken(token);
-        List<TaskResponse> response = taskService.getTasksForUserAndSubordinates(userId);
+        if (taskComplete == null) {
+            taskComplete = false;
+        }
+        TaskFilter filter = new TaskFilter(taskComplete, dueDateFrom, dueDateTo, taskType);
+        List<TaskResponse> response = taskService.getTasksForUserAndSubordinates(userId, filter);
         return ResponseEntity.ok(response);
     }
 
     private Long getUserIdFromToken(String token){
         String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
-        return jwtUtil.extractClaim(jwt, claims -> claims.get("userId", Long.class));
+        return jwtUtil.extractClaim(jwt, claims -> claims.get("user_id", Long.class));
     }
 
 }

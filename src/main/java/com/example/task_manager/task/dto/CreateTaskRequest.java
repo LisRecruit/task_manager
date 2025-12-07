@@ -6,5 +6,6 @@ public record CreateTaskRequest(String taskDescription,
                                 String dueDate,
                                 String taskType,
                                 String repeatableType,
+                                String period,
                                 Boolean repeatable) {
 }

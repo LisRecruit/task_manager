@@ -6,6 +6,7 @@ public record UpdateTaskRequest(Long taskId,
                                 String directManagerNote,
                                 Long responsiblePersonId,
                                 String dueDate,
+                                String period,
                                 String taskType,
                                 boolean taskComplete) {
 }

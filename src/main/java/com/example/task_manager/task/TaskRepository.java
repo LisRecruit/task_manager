@@ -10,5 +10,6 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository <Task, Long>, JpaSpecificationExecutor<Task> {
     List<Task> findAllByResponsiblePersonId(Long responsiblePersonId);
     List<Task> findAllByResponsiblePersonIdIn(List<Long> userIds);
+    List<Task> findAllByTaskComplete(Boolean taskComplete);
 
 }

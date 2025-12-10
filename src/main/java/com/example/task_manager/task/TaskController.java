@@ -67,11 +67,12 @@ public class TaskController {
     ) {
         String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
         Long userId = jwtUtil.extractClaim(jwt, claims -> claims.get("user_id", Long.class));
-        if (taskComplete == null) {
-            taskComplete = false;
-        }
+//        if (taskComplete == null) {
+//            taskComplete = false;
+//        }
         TaskFilter filter = new TaskFilter(taskComplete, dueDateFrom, dueDateTo, taskType);
         List<TaskResponse> response = taskService.getMyTasks(userId, filter);
+        System.out.println(response);
         return ResponseEntity.ok(response);
     }
     @GetMapping("/all-subs")
@@ -82,9 +83,9 @@ public class TaskController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateTo) {
         Long userId = getUserIdFromToken(token);
-        if (taskComplete == null) {
-            taskComplete = false;
-        }
+//        if (taskComplete == null) {
+//            taskComplete = false;
+//        }
         TaskFilter filter = new TaskFilter(taskComplete, dueDateFrom, dueDateTo, taskType);
         List<TaskResponse> response = taskService.getTasksForUserAndSubordinates(userId, filter);
         return ResponseEntity.ok(response);

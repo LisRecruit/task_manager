@@ -1,6 +1,6 @@
 package com.example.task_manager.task.dto;
 
-public record UpdateTaskRequest(Long taskId,
+public record UpdateTaskRequest(Long id,
                                 String taskDescription,
                                 String responsiblePersonNote,
                                 String directManagerNote,

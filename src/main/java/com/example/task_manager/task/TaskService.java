@@ -35,7 +35,7 @@ public class TaskService {
     @Transactional
     public TaskResponse updateTask (UpdateTaskRequest request, Long requesterId) {
         User requester = userService.getUserById(requesterId);
-        Task task = taskRepository.findById(request.taskId())
+        Task task = taskRepository.findById(request.id())
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
         Integer daysOverdue=-1;
         if (Boolean.FALSE.equals(task.getTaskComplete())){
@@ -54,6 +54,7 @@ public class TaskService {
             task.setResponsiblePerson(responsiblePerson);
             task.setDueDate(LocalDate.parse(request.dueDate()));
             task.setTaskType(TaskType.valueOf(request.taskType().toUpperCase()));
+            task.setPeriod(LocalDate.parse(request.period()).withDayOfMonth(1));
         } else {
             throw new AccessDeniedException("You are not eligible to do this changes");
         }
@@ -180,6 +181,8 @@ public class TaskService {
                 .taskType(TaskType.valueOf(request.taskType().toUpperCase()))
                 .repeatable(request.repeatable())
                 .repeatableType(RepeatableType.valueOf(request.repeatableType().toUpperCase()))
+                .directManagerNote("")
+                .responsiblePersonNote("")
                 .build();
     }
 
@@ -194,6 +197,8 @@ public class TaskService {
                 .taskType(task.getTaskType())
                 .repeatable(task.getRepeatable())
                 .repeatableType(task.getRepeatableType())
+                .responsiblePersonNote("")
+                .directManagerNote("")
                 .build();
     }
 

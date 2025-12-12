@@ -56,7 +56,11 @@ public class TaskController {
         TaskResponse response = taskService.createSubTask(request, userId, taskId);
         return ResponseEntity.ok(response);
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskResponse> getTaskById (@PathVariable long taskId){
+        TaskResponse response = taskService.getTaskById(taskId);
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/all")
     public ResponseEntity<List<TaskResponse>> getMyTasks (
             @RequestHeader("Authorization") String token,

@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -146,6 +147,11 @@ public class TaskService {
                 .map(taskMapper::toResponse)
                 .toList();
     }
+    public TaskResponse getTaskById (Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+        return taskMapper.toResponse(task);
+    }
 
     //recursion to get all subordinates
     private List<Long> getAllSubordinateIdsIncludingSelf(User user) {
@@ -180,7 +186,11 @@ public class TaskService {
                 .taskComplete(false)
                 .taskType(TaskType.valueOf(request.taskType().toUpperCase()))
                 .repeatable(request.repeatable())
-                .repeatableType(RepeatableType.valueOf(request.repeatableType().toUpperCase()))
+                .repeatableType(
+                        request.repeatableType() != null
+                                ? RepeatableType.valueOf(request.repeatableType().toUpperCase())
+                                : null
+                )
                 .directManagerNote("")
                 .responsiblePersonNote("")
                 .build();

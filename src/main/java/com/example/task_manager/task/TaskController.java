@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -23,14 +25,16 @@ public class TaskController {
     @PostMapping("/create")
     public ResponseEntity<TaskResponse> createTask (@RequestBody CreateTaskRequest request,
                                                     @RequestHeader("Authorization") String token) {
-        Long userId = getUserIdFromToken(token);
+        System.out.println("TOKEN: "+token);
+        System.out.println("Token bytes: " + Arrays.toString(token.getBytes(StandardCharsets.UTF_8)));
+        Long userId = jwtUtil.extractUserId(token);
         TaskResponse response = taskService.createTask(request, userId);
         return ResponseEntity.ok(response);
     }
     @PatchMapping("/edit")
     public ResponseEntity<TaskResponse> editTask (@RequestBody UpdateTaskRequest request,
                                                   @RequestHeader("Authorization") String token) {
-        Long userId = getUserIdFromToken(token);
+        Long userId = jwtUtil.extractUserId(token);
         TaskResponse response = taskService.updateTask(request, userId);
         return ResponseEntity.ok(response);
     }
@@ -44,7 +48,7 @@ public class TaskController {
     @PatchMapping("/complete/{taskId}")
     public ResponseEntity<CompleteTaskResponse> completeTask (@PathVariable long taskId,
                                                               @RequestHeader("Authorization") String token) {
-        Long userId = getUserIdFromToken(token);
+        Long userId = jwtUtil.extractUserId(token);
         CompleteTaskResponse response = taskService.completeTask(taskId, userId);
         return ResponseEntity.ok(response);
     }
@@ -52,7 +56,7 @@ public class TaskController {
     @PostMapping("/create/{taskId}")
     public ResponseEntity<TaskResponse> createSubTask(@PathVariable long taskId, @RequestBody CreateTaskRequest request,
                                                       @RequestHeader("Authorization") String token) {
-        Long userId = getUserIdFromToken(token);
+        Long userId = jwtUtil.extractUserId(token);
         TaskResponse response = taskService.createSubTask(request, userId, taskId);
         return ResponseEntity.ok(response);
     }
@@ -86,18 +90,13 @@ public class TaskController {
             @RequestParam(required = false) String taskType,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateTo) {
-        Long userId = getUserIdFromToken(token);
+        Long userId = jwtUtil.extractUserId(token);
 //        if (taskComplete == null) {
 //            taskComplete = false;
 //        }
         TaskFilter filter = new TaskFilter(taskComplete, dueDateFrom, dueDateTo, taskType);
         List<TaskResponse> response = taskService.getTasksForUserAndSubordinates(userId, filter);
         return ResponseEntity.ok(response);
-    }
-
-    private Long getUserIdFromToken(String token){
-        String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
-        return jwtUtil.extractClaim(jwt, claims -> claims.get("user_id", Long.class));
     }
 
 }

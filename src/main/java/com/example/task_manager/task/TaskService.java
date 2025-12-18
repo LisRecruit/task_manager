@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +22,6 @@ public class TaskService {
     private final UserService userService;
     private final TaskMapper taskMapper;
 
-    //get userCreatorId from token
     @Transactional
     public TaskResponse createTask (CreateTaskRequest request, Long userCreatorId) {
         //validate request.dueDate
@@ -83,10 +81,12 @@ public class TaskService {
                 LocalDate nextDueDate = determineNextDueDate(repeatableType, task.getDueDate());
                 LocalDate period = determineNextPeriod(repeatableType, task.getPeriod(), nextDueDate);
                 newTask = taskRepository.save(repeatTask(task, nextDueDate, period));
+
             }
             Task savedTask = taskRepository.save(task);
+            TaskResponse savedResponse = taskMapper.toResponse(savedTask);
             return new CompleteTaskResponse(
-                    taskMapper.toResponse(savedTask),
+                    savedResponse,
                     newTask != null ? taskMapper.toResponse(newTask) : null
             );
         } else {

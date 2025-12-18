@@ -37,7 +37,7 @@ public interface TaskMapper {
     )
     @Mapping(target = "period", expression = "java(formatPeriod(task.getPeriod()))")
 
-    @Mapping(target = "daysOverdue", expression = "java(calculateDaysOverdue(task))")
+    @Mapping(target = "daysOverdue", source = "daysOverdue")
 
     TaskResponse toResponse (Task task);
 
@@ -47,13 +47,13 @@ public interface TaskMapper {
         return period != null ? period.format(java.time.format.DateTimeFormatter.ofPattern("yyyy MMM", java.util.Locale.ENGLISH)) : null;
     }
 
-    default Integer calculateDaysOverdue(Task task) {
-        if (task.getTaskComplete() != null && task.getTaskComplete()) {
-            return null; // если выполнена — null или 0 (на твой выбор)
-        }
-        if (task.getDueDate() == null) {
-            return null;
-        }
-        return (int) java.time.temporal.ChronoUnit.DAYS.between(task.getDueDate(), java.time.LocalDate.now());
-    }
+//    default Integer calculateDaysOverdue(Task task) {
+//        if (task.getTaskComplete() != null && task.getTaskComplete()) {
+//            return null; // если выполнена — null или 0 (на твой выбор)
+//        }
+//        if (task.getDueDate() == null) {
+//            return null;
+//        }
+//        return (int) java.time.temporal.ChronoUnit.DAYS.between(task.getDueDate(), java.time.LocalDate.now());
+//    }
 }

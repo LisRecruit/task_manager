@@ -15,7 +15,7 @@ public class TaskSpecifications {
 
     public static Specification<Task> taskType(String taskType) {
         return (root, query, cb) -> {
-            if (taskType == null) return null;
+            if (taskType == null || taskType.isBlank() || taskType.equals("")) return null;
             return cb.equal(root.get("taskType"), TaskType.valueOf(taskType.toUpperCase()));
         };
     }

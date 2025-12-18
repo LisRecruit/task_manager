@@ -7,6 +7,7 @@ import com.example.task_manager.auth.user.dto.request.PasswordUpdateRequest;
 import com.example.task_manager.auth.user.dto.request.UserCreateRequest;
 import com.example.task_manager.auth.user.dto.request.UserUpdateRequest;
 import com.example.task_manager.auth.user.dto.response.PagedUserResponse;
+import com.example.task_manager.auth.user.dto.response.UserLookupResponse;
 import com.example.task_manager.auth.user.dto.response.UserResponse;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -127,4 +129,12 @@ public class UserService {
                 .total(userPage.getTotalElements())
                 .build();
     }
+
+    public List<UserLookupResponse> searchUsers(String query) {
+        List<User> users = userRepository.findByUserNameContainingIgnoreCase(query);
+        return users.stream()
+                .map(u -> new UserLookupResponse(u.getId(), u.getUserName()))
+                .collect(Collectors.toList());
+    }
+
 }

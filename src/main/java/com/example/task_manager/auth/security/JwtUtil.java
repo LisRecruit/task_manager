@@ -38,8 +38,14 @@ public class JwtUtil {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+
     public Long extractUserId(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
         return extractClaim(token, claims -> claims.get("user_id", Long.class));
+//        String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
+//        return extractClaim(jwt, claims -> claims.get("user_id", Long.class));
     }
 
 
@@ -105,11 +111,7 @@ public class JwtUtil {
     public List<String> extractRoles(String token) {
         return extractClaim(token, claims -> claims.get("roles", List.class));
     }
-    public Long getUserIdFromToken(String token) {
 
-        final Claims claims = getAllClaimsFromToken(token);
-        return claims.get("user_id", Long.class);
-    }
 
 
 

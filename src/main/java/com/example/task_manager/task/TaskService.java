@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -151,6 +152,27 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
         return taskMapper.toResponse(task);
+    }
+
+    public List<DependencyStatusResponse> getDependencyStatus (Long parentTaskId){
+        Task parrentTask = taskRepository.findById(parentTaskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+        List<Task> subTasks = parrentTask.getSubTasks();
+        List<Task> openTasks = subTasks.stream()
+                .filter(task -> Boolean.FALSE.equals(task.getTaskComplete()))
+                .sorted(Comparator.comparing(Task::getDaysOverdue).reversed()) //sort tasks by daysOverdue
+                .toList();
+        if (openTasks.isEmpty()){
+            return subTasks
+                    .stream()
+                    .max(Comparator.comparing(Task::getDaysOverdue))
+                    .map(taskMapper::toDependencyStatusResponse)
+                    .stream().toList();
+        } else {
+            return openTasks.stream()
+                    .map(taskMapper::toDependencyStatusResponse)
+                    .toList();
+        }
     }
 
     //recursion to get all subordinates

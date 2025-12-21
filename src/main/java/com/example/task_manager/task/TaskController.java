@@ -99,4 +99,10 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/dependencies/{id}")
+    public ResponseEntity<List<DependencyStatusResponse>> getDependencyStatus(@PathVariable long id){
+        List<DependencyStatusResponse> responses = taskService.getDependencyStatus(id);
+        return ResponseEntity.ok(responses);
+    }
+
 }

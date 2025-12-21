@@ -1,6 +1,7 @@
 package com.example.task_manager.task;
 
 import com.example.task_manager.auth.user.UserMapper;
+import com.example.task_manager.task.dto.DependencyStatusResponse;
 import com.example.task_manager.task.dto.TaskResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -46,6 +47,7 @@ public interface TaskMapper {
     default String formatPeriod(java.time.LocalDate period) {
         return period != null ? period.format(java.time.format.DateTimeFormatter.ofPattern("yyyy MMM", java.util.Locale.ENGLISH)) : null;
     }
+    DependencyStatusResponse toDependencyStatusResponse(Task task);
 
 //    default Integer calculateDaysOverdue(Task task) {
 //        if (task.getTaskComplete() != null && task.getTaskComplete()) {

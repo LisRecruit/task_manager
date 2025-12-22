@@ -88,13 +88,13 @@ CREATE TABLE tasks (
     CONSTRAINT fk_parent_task FOREIGN KEY (parent_task_id) REFERENCES tasks(id) ON DELETE CASCADE
 );
 
-CREATE TABLE sub_tasks (
-    task_id BIGINT NOT NULL,
-    depends_on_task_id BIGINT NOT NULL,
-    PRIMARY KEY (task_id, depends_on_task_id),
-    CONSTRAINT fk_subtask_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
-    CONSTRAINT fk_subtask_dependency FOREIGN KEY (depends_on_task_id) REFERENCES tasks(id) ON DELETE CASCADE
-);
+--CREATE TABLE sub_tasks (
+--    task_id BIGINT NOT NULL,
+--    depends_on_task_id BIGINT NOT NULL,
+--    PRIMARY KEY (task_id, depends_on_task_id),
+--    CONSTRAINT fk_subtask_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+--    CONSTRAINT fk_subtask_dependency FOREIGN KEY (depends_on_task_id) REFERENCES tasks(id) ON DELETE CASCADE
+--);
 
 INSERT INTO tasks (task_description, responsible_person_note, direct_manager_note,
                    responsible_user_id, task_set_by_user_id,
@@ -108,9 +108,9 @@ VALUES
 
 ('Post journal entry for payroll accrual', '', '', 3, 2, '2025-02-25', '2025-02-01', FALSE, 'POST_JOURNAL', FALSE, NULL, NULL),
 
-('Post payment to vendor: Telco Corp', '', '', 4, 2, '2025-02-19', '2025-02-01', FALSE, 'POST_PAYMENT', FALSE, NULL, NULL),
+('Post payment to vendor: Telco Corp', '', '', 4, 2, '2025-02-19', '2025-02-01', FALSE, 'POST_PAYMENT', FALSE, NULL, 3),
 
-('Match bank transactions for last week', '', '', 4, 2, '2025-02-21', '2025-01-01', FALSE, 'MATCH_BANK', TRUE, 'WEEKLY', NULL),
+('Match bank transactions for last week', '', '', 4, 2, '2025-02-21', '2025-01-01', FALSE, 'MATCH_BANK', TRUE, 'WEEKLY', 3),
 
 ('Prepare monthly revenue report', '', '', 5, 3, '2025-02-28', '2025-01-01', FALSE, 'ONE_TIME', FALSE, NULL, NULL),
 
@@ -120,11 +120,11 @@ VALUES
 
 ('Prepare payment for insurance premium', '', '', 6, 4, '2025-02-17', '2025-01-01', FALSE, 'POST_PAYMENT', FALSE, NULL, NULL);
 
-INSERT INTO sub_tasks (task_id, depends_on_task_id) VALUES
-  (6, 3),
-  (6, 4),
-  (8, 7),
-  (10, 9);
+--INSERT INTO sub_tasks (task_id, depends_on_task_id) VALUES
+--  (6, 3),
+--  (6, 4),
+--  (8, 7),
+--  (10, 9);
 
 
 

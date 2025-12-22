@@ -18,7 +18,7 @@ public record TaskResponse(Long id,
                            String completionDate,
                            String period,
                            Integer daysOverdue,
-                           List<TaskResponse> requiresTasksToComplete,
+                           List<DependencyStatusResponse> requiresTasksToComplete,
                            Boolean taskComplete,
                            TaskType taskType
                            ) {

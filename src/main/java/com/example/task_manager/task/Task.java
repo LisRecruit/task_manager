@@ -45,13 +45,19 @@ public class Task {
     private LocalDate completionDate;
     @Column (name = "days_overdue")
     private Integer daysOverdue;
-    @ManyToMany (fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "sub_tasks",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "depends_on_task_id")
-    )
+//    @ManyToMany (fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "sub_tasks",
+//            joinColumns = @JoinColumn(name = "task_id"),
+//            inverseJoinColumns = @JoinColumn(name = "depends_on_task_id")
+//    )
+    @OneToMany(mappedBy = "parentTask")
     private List<Task> subTasks = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_task_id")
+    private Task parentTask;
+
     @Column(name = "task_complete", nullable = false)
     private Boolean taskComplete;
     @Column(name = "task_type")
